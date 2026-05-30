@@ -1,0 +1,9 @@
+node_modules
+_generated
+.env
+.git
+.gitignore
+.DS_Store
+**/.DS_Store
+.claude
+npm-debug.log*

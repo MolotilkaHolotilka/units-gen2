@@ -1,0 +1,7 @@
+node_modules/
+_generated/
+.env
+.DS_Store
+**/.DS_Store
+.claude/
+npm-debug.log*

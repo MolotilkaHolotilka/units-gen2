@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mascot-gen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo-full" src="/media/Logo/logo-full-black.png" alt="Bots & Bones" />
+        <div>
+          <p>B&B / MASCOT-GEN</p>
+          <h1>mascot-gen</h1>
+        </div>
+      </div>
+      <nav class="top-nav">
+        <button type="button" class="nav-tab is-active" data-view="generator">Generator</button>
+        <button type="button" class="nav-tab" data-view="generator-v2">Steps V2</button>
+        <button type="button" class="nav-tab" data-view="info">Info</button>
+        <button type="button" class="nav-tab" data-view="gallery">Gallery</button>
+      </nav>
+    </header>
+
+    <main class="layout" id="generatorView">
+      <section class="panel controls-panel">
+        <div class="section-head source-head">
+          <span>01</span>
+          <h2>Source</h2>
+        </div>
+
+        <label class="field source-field">
+          <span>Base mascot</span>
+          <select id="imageSelect"></select>
+        </label>
+
+        <div class="source-preview">
+          <img id="sourceImage" alt="Selected source mascot" />
+        </div>
+
+        <div class="section-head mode-head">
+          <span>02</span>
+          <h2>Mode</h2>
+        </div>
+
+        <div class="segmented mode-segmented" data-control="mode">
+          <button type="button" data-value="auto" class="is-active">Auto brief</button>
+          <button type="button" data-value="manual">Manual parts</button>
+        </div>
+
+        <div class="auto-panel" id="autoPanel">
+          <label class="field">
+            <span>Idea</span>
+            <textarea id="conceptInput" rows="3" placeholder="Example: make a streetwise courtyard unit, or a bot for a content producer"></textarea>
+          </label>
+          <button class="secondary full-button" id="buildPartsButton" type="button">Build 9 parts from idea</button>
+        </div>
+
+        <div class="concept-pass is-hidden" id="conceptPass"></div>
+
+        <div class="section-head parts-head">
+          <span>03</span>
+          <h2>Parts</h2>
+        </div>
+
+        <div class="part-actions">
+          <button class="secondary compact-button" id="enableAllPartsButton" type="button">All on</button>
+          <button class="secondary compact-button" id="resetPartsButton" type="button">Reset parts</button>
+        </div>
+
+        <div class="parts-grid" id="partsGrid"></div>
+
+        <div class="section-head controls-head">
+          <span>04</span>
+          <h2>Controls</h2>
+        </div>
+
+        <div class="segmented" data-control="intensity">
+          <button type="button" data-value="subtle">Subtle</button>
+          <button type="button" data-value="normal" class="is-active">Normal</button>
+          <button type="button" data-value="strong">Strong</button>
+        </div>
+
+        <div class="segmented" data-control="wear">
+          <button type="button" data-value="clean">Clean</button>
+          <button type="button" data-value="light wear" class="is-active">Light wear</button>
+          <button type="button" data-value="operational wear">Operational wear</button>
+        </div>
+
+        <label class="field context-field">
+          <span>User context</span>
+          <textarea id="contextInput" rows="4" placeholder="Example: a unit for a content team that turns long interviews into clips and campaign assets"></textarea>
+        </label>
+
+        <div class="section-head settings-head">
+          <span>05</span>
+          <h2>Settings</h2>
+        </div>
+
+        <div class="settings-panel">
+          <div class="settings-grid">
+            <label class="field compact">
+              <span>Aspect ratio</span>
+              <select id="aspectRatioInput">
+                <option value="auto">Auto</option>
+                <option value="1:1">1:1 square</option>
+                <option value="4:5">4:5 portrait</option>
+                <option value="3:4">3:4 portrait</option>
+                <option value="2:3">2:3 portrait</option>
+                <option value="9:16">9:16 vertical</option>
+                <option value="16:9">16:9 wide</option>
+                <option value="3:2">3:2 landscape</option>
+                <option value="4:3">4:3 landscape</option>
+                <option value="5:4">5:4 landscape</option>
+                <option value="21:9">21:9 cinematic</option>
+              </select>
+            </label>
+
+            <label class="field compact">
+              <span>Resolution</span>
+              <select id="resolutionInput">
+                <option value="1K">1K</option>
+                <option value="2K">2K</option>
+                <option value="4K">4K</option>
+              </select>
+            </label>
+
+            <label class="field compact">
+              <span>Format</span>
+              <select id="outputFormatInput">
+                <option value="png">PNG</option>
+                <option value="webp">WEBP</option>
+                <option value="jpeg">JPEG</option>
+              </select>
+            </label>
+
+            <label class="field compact">
+              <span>Thinking</span>
+              <select id="thinkingLevelInput">
+                <option value="minimal">Minimal</option>
+                <option value="high">High</option>
+                <option value="">Off</option>
+              </select>
+            </label>
+
+            <label class="field compact">
+              <span>Safety</span>
+              <select id="safetyToleranceInput">
+                <option value="1">1 strict</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4 default</option>
+                <option value="5">5</option>
+                <option value="6">6 loose</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="settings-readouts">
+            <div>
+              <span>Image model</span>
+              <strong id="imageModelValue">loading</strong>
+            </div>
+            <div>
+              <span>Text model</span>
+              <strong id="textModelValue">loading</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="secondary" id="rebuildPromptButton" type="button">Rebuild prompt</button>
+          <button class="secondary" id="copyPromptButton" type="button">Copy prompt</button>
+        </div>
+      </section>
+
+      <section class="panel prompt-panel">
+        <div class="section-head prompt-head">
+          <span>06</span>
+          <h2>Prompt</h2>
+        </div>
+
+        <div class="prompt-toolbar">
+          <div id="promptState" class="status-pill muted">auto-built</div>
+          <div id="qaState" class="status-pill">checking</div>
+        </div>
+
+        <textarea id="promptEditor" spellcheck="false"></textarea>
+
+        <div class="qa-box" id="qaBox"></div>
+      </section>
+
+      <section class="panel result-panel">
+        <div class="section-head generate-head">
+          <span>07</span>
+          <h2>Generate</h2>
+        </div>
+
+        <button class="primary" id="generateButton" type="button">Generate with FAL</button>
+
+        <div class="run-status" id="runStatus">Ready.</div>
+
+        <div class="result-stage">
+          <img id="resultImage" alt="Generated mascot result" />
+          <div class="empty-result" id="emptyResult">Result appears here</div>
+        </div>
+
+        <div class="actions">
+          <button class="secondary" id="useResultButton" type="button" disabled>Use result as source</button>
+          <a class="secondary link-button" id="downloadLink" href="#" target="_blank" rel="noreferrer">Open image</a>
+        </div>
+
+        <div class="section-head video-head">
+          <span>08</span>
+          <h2>Video</h2>
+        </div>
+
+        <label class="field">
+          <span>Headline</span>
+          <input id="videoHeadline" type="text" placeholder="UNIT-07" />
+        </label>
+
+        <label class="field">
+          <span>Subhead (optional)</span>
+          <input id="videoSubhead" type="text" placeholder="content systems unit" />
+        </label>
+
+        <div class="settings-grid">
+          <label class="field compact">
+            <span>Animation</span>
+            <select id="videoPreset">
+              <option value="slide-up">Slide up</option>
+              <option value="fade">Fade</option>
+              <option value="typewriter">Typewriter</option>
+              <option value="mask-reveal">Mask reveal</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Size</span>
+            <select id="videoFormat">
+              <option value="4:5">4:5 portrait</option>
+              <option value="1:1">1:1 square</option>
+              <option value="9:16">9:16 vertical</option>
+              <option value="16:9">16:9 wide</option>
+            </select>
+          </label>
+        </div>
+
+        <button class="primary" id="makeVideoButton" type="button">Make video</button>
+
+        <div class="result-stage video-stage" id="videoStage">
+          <video id="resultVideo" controls playsinline preload="metadata"></video>
+          <div class="empty-result" id="emptyVideo">Video appears here</div>
+        </div>
+
+        <div class="actions">
+          <a class="secondary link-button" id="videoDownloadLink" href="#" target="_blank" rel="noreferrer" aria-disabled="true">Open video</a>
+        </div>
+      </section>
+    </main>
+
+    <section class="info-view is-hidden" id="infoView">
+      <div class="info-hero">
+        <div>
+          <p>[ B&B / MASCOT-GEN ] · REV 2026.05 · DRAFT</p>
+          <h2>How mascot-gen works.</h2>
+        </div>
+        <p>
+          A controlled mascot generator for turning rough character ideas into brand-safe unit prompts, then editing the selected source mascot with FAL Nano Banana 2.
+        </p>
+      </div>
+
+      <div class="info-stats">
+        <div><strong>9</strong><span>editable parts</span></div>
+        <div><strong>10</strong><span>brand colors</span></div>
+        <div><strong>2</strong><span>generator layouts</span></div>
+        <div><strong>1</strong><span>saved gallery</span></div>
+      </div>
+
+      <div class="info-section-head">
+        <h3>Pipeline</h3>
+        <span>01</span>
+      </div>
+
+      <div class="info-flow">
+        <article>
+          <span>01</span>
+          <h4>Source</h4>
+          <p>Pick a mascot image. The source preserves pose, camera, material quality, and core proportions.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h4>Brief</h4>
+          <p>Write a rough idea such as “English streetwise bot” or switch to manual part editing.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h4>Concept</h4>
+          <p>OpenAI first invents a product archetype: title, story, visual logic, signatures, and avoid rules.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h4>Parts</h4>
+          <p>Each editable part targets one physical area: face, head, shell, controls, slots, arms, modules, labels, finish.</p>
+        </article>
+        <article>
+          <span>05</span>
+          <h4>QA</h4>
+          <p>The final prompt is checked for brand colors, artifact cleanup rules, and required prompt sections.</p>
+        </article>
+        <article>
+          <span>06</span>
+          <h4>Generate</h4>
+          <p>FAL edits the source. The server downloads the result and adds it to Gallery.</p>
+        </article>
+      </div>
+
+      <div class="info-grid">
+        <article class="info-card">
+          <span>Prompt stack</span>
+          <h3>What goes into the final prompt</h3>
+          <ul>
+            <li>Preservation rules: keep pose, camera, proportions, and rendering style.</li>
+            <li>Brand color rules: only colors from DESIGN.md.</li>
+            <li>Creative concept: title, archetype, story, visual principle, signatures, avoid rules.</li>
+            <li>9 part prompts: editable physical controls for the mascot body.</li>
+            <li>Settings: aspect ratio, resolution, format, thinking, safety.</li>
+          </ul>
+        </article>
+
+        <article class="info-card">
+          <span>Artifact cleanup</span>
+          <h3>What is not identity</h3>
+          <p>
+            Glasses, lenses, flowers, ties, collars, shirts, plaid cloth, backpacks, novelty props, snack packs, phones, smoking-related packs, and third-party logos are source artifacts. If the concept does not ask for them, the prompt removes, neutralizes, or converts them into brand-safe modules.
+          </p>
+        </article>
+
+        <article class="info-card info-example-card">
+          <span>Examples</span>
+          <h3>From rough idea to usable parts</h3>
+          <div class="example-table">
+            <div><strong>английский гопник</strong><p>UK terrace-yard collectible bot with cap-plate, utility pockets, status pins, no caricature.</p></div>
+            <div><strong>строгий архивариус</strong><p>Archive custodian with scanner bar, memory cards, catalog labels, unobstructed display.</p></div>
+            <div><strong>бариста третьей волны</strong><p>Precision coffee unit with tool modules, roast labels, muted shell panels, brand accents only.</p></div>
+          </div>
+        </article>
+
+        <article class="info-card">
+          <span>Settings</span>
+          <h3>Generation controls</h3>
+          <p>
+            Nano Banana 2 edit accepts aspect ratio, output format, safety tolerance, thinking level, and resolution. The UI exposes the common controls and keeps conservative defaults for mascot consistency.
+          </p>
+        </article>
+
+        <article class="info-card info-parts-card">
+          <span>9-part system</span>
+          <h3>Editable mascot anatomy</h3>
+          <div class="parts-matrix">
+            <b>01 Face</b><b>02 Head</b><b>03 Shell</b><b>04 Controls</b><b>05 Slots</b><b>06 Arms</b><b>07 Modules</b><b>08 Labels</b><b>09 Finish</b>
+          </div>
+        </article>
+
+        <article class="info-card">
+          <h3>Live checks</h3>
+          <div class="flow-checks" id="infoChecks"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="gallery-view is-hidden" id="galleryView">
+      <div class="gallery-head">
+        <div>
+          <p>GENERATED UNITS</p>
+          <h2>Gallery</h2>
+        </div>
+        <button class="secondary" id="refreshGalleryButton" type="button">Refresh</button>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </section>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

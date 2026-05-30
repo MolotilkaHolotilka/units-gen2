@@ -1,0 +1,9 @@
+# Caddy auto-provisions HTTPS for {$DOMAIN} and protects the app with one shared login.
+# Values come from .env: DOMAIN, BASIC_AUTH_USER, BASIC_AUTH_HASH.
+
+{$DOMAIN} {
+	basic_auth {
+		{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+	}
+	reverse_proxy app:8082
+}
