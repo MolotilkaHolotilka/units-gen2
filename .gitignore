@@ -1,5 +1,6 @@
 node_modules/
 _generated/
+media/
 .env
 .DS_Store
 **/.DS_Store
