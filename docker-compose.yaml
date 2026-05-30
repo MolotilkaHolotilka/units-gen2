@@ -1,0 +1,20 @@
+# Coolify deployment — HTTPS and Basic Auth are handled by Coolify (Traefik).
+# For standalone VPS deploy with bundled Caddy, use compose.yaml instead.
+
+services:
+  app:
+    build: .
+    environment:
+      - SERVICE_FQDN_APP_8082
+      - FAL_KEY=${FAL_KEY:-}
+      - FAL_MODEL=${FAL_MODEL:-fal-ai/nano-banana-2/edit}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-5-mini}
+    expose:
+      - "8082"
+    volumes:
+      - app-generated:/app/_generated
+    restart: unless-stopped
+
+volumes:
+  app-generated:
