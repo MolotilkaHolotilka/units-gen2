@@ -245,7 +245,7 @@ function escapeHtml(value) {
 }
 
 function selectedImage() {
-  return state.config.images.find((image) => image.imagePath === state.selectedImagePath);
+  return (state.config?.images || []).find((image) => image.imagePath === state.selectedImagePath);
 }
 
 function buildPrompt() {
@@ -294,16 +294,34 @@ function updatePromptState() {
 }
 
 function renderImages() {
+  const images = Array.isArray(state.config.images) ? state.config.images : [];
+  state.config.images = images;
   els.imageSelect.innerHTML = "";
-  for (const image of state.config.images) {
+
+  if (images.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No local source images";
+    els.imageSelect.append(option);
+    els.imageSelect.disabled = true;
+    state.selectedImagePath = "";
+    els.sourceImage.removeAttribute("src");
+    updateSourcePreview();
+    renderInfoStatus();
+    setRunStatus("No local source images found. Add images to media/Mascot to enable generation.");
+    return;
+  }
+
+  els.imageSelect.disabled = false;
+  for (const image of images) {
     const option = document.createElement("option");
     option.value = image.imagePath;
     option.textContent = `${image.group} / ${image.file}`;
     els.imageSelect.append(option);
   }
 
-  const preferredImage = state.config.images.find((image) => image.imagePath === PREFERRED_SOURCE_IMAGE);
-  state.selectedImagePath = preferredImage?.imagePath || state.config.images[0]?.imagePath || "";
+  const preferredImage = images.find((image) => image.imagePath === PREFERRED_SOURCE_IMAGE);
+  state.selectedImagePath = preferredImage?.imagePath || images[0]?.imagePath || "";
   els.imageSelect.value = state.selectedImagePath;
   updateSourcePreview();
   renderInfoStatus();
@@ -316,7 +334,10 @@ function updateSourcePreview() {
   }
 
   const image = selectedImage();
-  if (!image) return;
+  if (!image) {
+    els.sourceImage.removeAttribute("src");
+    return;
+  }
   els.sourceImage.src = image.url;
 }
 
@@ -906,6 +927,7 @@ function setupEvents() {
 async function init() {
   const response = await fetch("/api/config");
   state.config = await response.json();
+  state.config.images = Array.isArray(state.config.images) ? state.config.images : [];
   els.imageModelValue.textContent = state.config.model;
   els.textModelValue.textContent = state.config.textModel;
   els.downloadLink.setAttribute("aria-disabled", "true");

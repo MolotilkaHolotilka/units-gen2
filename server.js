@@ -165,7 +165,10 @@ function parseUnitMarkdown(fileName, markdown) {
 }
 
 async function listMascotImages() {
-  const groups = await readdir(path.join(MEDIA_DIR, "Mascot"), { withFileTypes: true });
+  const mascotRoot = path.join(MEDIA_DIR, "Mascot");
+  if (!existsSync(mascotRoot)) return [];
+
+  const groups = await readdir(mascotRoot, { withFileTypes: true });
   const images = [];
 
   for (const group of groups) {
@@ -528,6 +531,10 @@ function resolveExternalImageUrl(imageUrl) {
 async function resolveImageUrl({ imagePath, imageUrl }) {
   const externalUrl = resolveExternalImageUrl(imageUrl);
   if (externalUrl) return externalUrl;
+
+  if (!imagePath) {
+    throw new Error("Source image is required. Add files to media/Mascot or provide an external image URL.");
+  }
 
   const imageFile = resolveMascotImage(imagePath);
   await stat(imageFile);
