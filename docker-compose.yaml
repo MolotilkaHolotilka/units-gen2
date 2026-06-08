@@ -1,5 +1,5 @@
 # Coolify deployment — HTTPS and Basic Auth are handled by Coolify (Traefik).
-# For standalone VPS deploy with bundled Caddy, use compose.yaml instead.
+# For standalone VPS deploy without Coolify, use compose.yaml instead.
 
 services:
   app:

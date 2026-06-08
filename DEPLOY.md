@@ -12,12 +12,24 @@
 
 ---
 
-## 🚀 Наш сценарий: Ubuntu VPS + Docker + домен/HTTPS/Basic Auth
+## 🚀 Наш сценарий: Coolify (рекомендуется)
 
-Все нужные файлы уже в репозитории: `Dockerfile`, `compose.yaml`, `Caddyfile`,
-`.env.example`, `.dockerignore`. Деплой — одной командой `docker compose up`.
-`compose.yaml` поднимает два контейнера: **app** (Node + Remotion, наружу не торчит)
-и **Caddy** (HTTPS + общий логин/пароль).
+Файлы в репозитории: `Dockerfile`, `docker-compose.yaml`, `.env.example`, `.dockerignore`.
+HTTPS и Basic Auth настраиваются в Coolify (Traefik) — в compose только **app**.
+
+**Шаги:**
+
+1. Подключить репозиторий в Coolify, выбрать `docker-compose.yaml`.
+2. В переменных окружения задать `FAL_KEY`, `OPENAI_API_KEY` (и при необходимости модели).
+3. Включить домен, HTTPS и Basic Auth в панели Coolify.
+4. Задеплоить.
+
+---
+
+## Альтернатива: Ubuntu VPS + Docker (без Coolify)
+
+`compose.yaml` поднимает один контейнер **app** на порту `8082`.
+HTTPS и защиту ставь отдельно (nginx, Traefik, VPN).
 
 **Шаги на сервере:**
 
@@ -25,27 +37,21 @@
 # 0. Поставить Docker (если ещё нет)
 curl -fsSL https://get.docker.com | sh
 
-# 1. DNS: A-запись твоего домена -> IP сервера (mascot.example.com -> 1.2.3.4)
-#    Порты 80 и 443 должны быть открыты (Caddy сам выпустит сертификат).
+# 1. Залить проект на сервер (git clone или rsync), зайти в папку
+cd units-gen
 
-# 2. Залить проект на сервер (git clone или rsync), зайти в папку
-cd "v0001 - units-gen"
-
-# 3. Подготовить .env
+# 2. Подготовить .env
 cp .env.example .env
-nano .env        # вписать FAL_KEY, OPENAI_API_KEY, DOMAIN, BASIC_AUTH_USER
+nano .env        # вписать FAL_KEY, OPENAI_API_KEY
 
-# 4. Сгенерировать хэш пароля для Basic Auth и вставить в .env (BASIC_AUTH_HASH)
-docker compose run --rm caddy caddy hash-password --plaintext 'ПАРОЛЬ_КОМАНДЫ'
-
-# 5. Собрать и запустить (первая сборка качает Chromium — пару минут)
+# 3. Собрать и запустить (первая сборка качает Chromium — пару минут)
 docker compose up -d --build
 
-# 6. Логи / проверка
+# 4. Логи / проверка
 docker compose logs -f app
 ```
 
-Готово: `https://твойдомен` спросит логин/пароль и откроет генератор.
+Готово: приложение на `http://IP:8082` (или за reverse-proxy с HTTPS).
 
 **Обновление после правок кода:**
 ```bash
@@ -73,14 +79,10 @@ docker compose up -d --build
 
 ## Вариант A — Docker (рекомендуется)
 
-Это путь из секции «Наш сценарий» выше. Готовые файлы в репозитории:
-- `Dockerfile` — образ с системными либами Chromium + `npm ci` + предзагрузка браузера.
-- `compose.yaml` — два сервиса: **app** (наружу не публикуется) и **caddy** (HTTPS + Basic Auth).
-- `Caddyfile` — берёт `DOMAIN` / `BASIC_AUTH_USER` / `BASIC_AUTH_HASH` из `.env`.
+- **Coolify** — `docker-compose.yaml` (HTTPS/Basic Auth в панели Coolify).
+- **Standalone** — `compose.yaml` (только app на `:8082`, прокси снаружи).
 
-Запуск — `docker compose up -d --build` (полная последовательность — в секции
-«Наш сценарий» в начале файла). Reverse-proxy и HTTPS уже внутри compose, отдельно
-поднимать не нужно.
+`Dockerfile` — образ с системными либами Chromium + `npm ci` + предзагрузка браузера.
 
 ---
 
@@ -139,24 +141,10 @@ sudo systemctl enable --now mascot-gen
 
 ## Reverse-proxy + HTTPS + защита (обязательно)
 
-Пример **Caddy** (сам выпускает HTTPS, проще nginx):
+На **Coolify** это настраивается в UI (домен, сертификат, Basic Auth).
 
-`/etc/caddy/Caddyfile`:
-```
-mascot.твойдомен.ru {
-    basic_auth {
-        team JDJhJDE0... # хэш пароля: caddy hash-password
-    }
-    reverse_proxy 127.0.0.1:8082
-}
-```
-```bash
-sudo systemctl reload caddy
-```
-
-Это даёт: HTTPS-сертификат автоматически + один общий логин/пароль для команды.
-Альтернативы защиты: nginx + `auth_basic`, или закрыть в VPN (WireGuard/Tailscale) и не
-светить наружу вообще.
+Для standalone Docker — поставь nginx/Traefik перед `:8082` или закрой доступ через
+VPN (WireGuard/Tailscale) и не свети порт наружу.
 
 ---
 

@@ -1,41 +1,17 @@
-# One-command deploy: app (Node + Remotion) behind Caddy (HTTPS + Basic Auth).
-# The app is NOT published to the host — only Caddy is reachable from outside.
+# Standalone Docker deploy: app only (Node + Remotion).
+# Put HTTPS / Basic Auth in front via Coolify, nginx, or another reverse proxy.
 
 services:
   app:
     build: .
-    # Locally these resolve from .env (Compose auto-loads it for interpolation).
-    # In CI they are injected by the GitHub Action (hostinger/deploy-on-vps).
     environment:
       FAL_KEY: ${FAL_KEY:-}
       FAL_MODEL: ${FAL_MODEL:-fal-ai/nano-banana-2/edit}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
-    expose:
-      - "8082"
+    ports:
+      - "8082:8082"
     volumes:
       # Persist generated images/videos across rebuilds.
       - ./_generated:/app/_generated
     restart: unless-stopped
-
-  caddy:
-    image: caddy:2
-    depends_on:
-      - app
-    # DOMAIN / BASIC_AUTH_* : from .env locally, from the GitHub Action in CI.
-    environment:
-      DOMAIN: ${DOMAIN:-}
-      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-}
-      BASIC_AUTH_HASH: ${BASIC_AUTH_HASH:-}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    restart: unless-stopped
-
-volumes:
-  caddy_data:
-  caddy_config:
